@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TELECOM CUSTOMER CHURN PREDICTION</title>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="../static/style.css" />
+    <link rel="stylesheet" href="../static/all.min.css">
+    <link rel="icon" href="../static/icon.png" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="Books">
+        <div class="content-Box">
+          <h1 class="rise">TELECOM CUSTOMER CHURN PREDICTION</h1>
+          <div class="show-about"><svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M512 64a448 448 0 1 1 0 896.064A448 448 0 0 1 512 64zm67.2 275.072c33.28 0 60.288-23.104 60.288-57.344s-27.072-57.344-60.288-57.344c-33.28 0-60.16 23.104-60.16 57.344s26.88 57.344 60.16 57.344zM590.912 699.2c0-6.848 2.368-24.64 1.024-34.752l-52.608 60.544c-10.88 11.456-24.512 19.392-30.912 17.28a12.992 12.992 0 0 1-8.256-14.72l87.68-276.992c7.168-35.136-12.544-67.2-54.336-71.296-44.096 0-108.992 44.736-148.48 101.504 0 6.784-1.28 23.68.064 33.792l52.544-60.608c10.88-11.328 23.552-19.328 29.952-17.152a12.8 12.8 0 0 1 7.808 16.128L388.48 728.576c-10.048 32.256 8.96 63.872 55.04 71.04 67.84 0 107.904-43.648 147.456-100.416z"/></svg></div>
+
+          <!-- <div class="about-us">
+            <div class="close-about"><svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M512 64a448 448 0 1 1 0 896.064A448 448 0 0 1 512 64zm67.2 275.072c33.28 0 60.288-23.104 60.288-57.344s-27.072-57.344-60.288-57.344c-33.28 0-60.16 23.104-60.16 57.344s26.88 57.344 60.16 57.344zM590.912 699.2c0-6.848 2.368-24.64 1.024-34.752l-52.608 60.544c-10.88 11.456-24.512 19.392-30.912 17.28a12.992 12.992 0 0 1-8.256-14.72l87.68-276.992c7.168-35.136-12.544-67.2-54.336-71.296-44.096 0-108.992 44.736-148.48 101.504 0 6.784-1.28 23.68.064 33.792l52.544-60.608c10.88-11.328 23.552-19.328 29.952-17.152a12.8 12.8 0 0 1 7.808 16.128L388.48 728.576c-10.048 32.256 8.96 63.872 55.04 71.04 67.84 0 107.904-43.648 147.456-100.416z"/></svg></div>
+          <h1 class="rise">TELECOM CUSTOMER CHURN PREDICTION</h1>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae non delectus expedita sed nulla, enim eos corporis eveniet ad assumenda eius officia! Accusamus similique temporibus ex tempora, rem aperiam impedit.</p>
+          </div> -->
+          <div class="btn-primary-predict">
+            <button class="btn btn-primary" onclick="showSingleCustomer()">
+              Predict Single Customer
+            </button>
+            <button class="btn btn-primary" onclick="showCSVExcel()">
+              Predict from CSV/Excel
+            </button>
+          </div>
+          <div id="Predict_Single_Customer">
+            <div id="prediction-container" style="text-align: center"></div>
+            <form class="row g-3" action="" method="post">
+              <div>
+                <label for="inputPassword4" class="form-label">SeniorCitizen :</label>
+                <select name="SeniorCitizen" id="SeniorCitizen" class="form-control">
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="inputPassword4" class="form-label">Dependents:</label>
+                <select name="Dependents" id="Dependents" class="form-control">
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </div>
+              <div>
+                <label for="inputPassword4" class="form-label">tenure:</label>
+                <input type="number" min="0" value="0" step="any" class="form-control" name="tenure" id="tenure" />
+              </div>
+              <div>
+                <label for="inputAddress" class="form-label">onlinesecurity:</label>
+                <select name="onlinesecurity" id="onlinesecurity" class="form-control">
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                  <option value="No internet service">No internet service</option>
+                </select>
+              </div>
+              <div>
+                <label for="inputAddress2" class="form-label">onlinebackup:</label>
+                <select name="onlinebackup" id="onlinebackup" class="form-control">
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </div>
+              <div>
+                <label for="inputAddress" class="form-label">DeviceProtection:</label>
+                <select name="DeviceProtection" id="DeviceProtection" class="form-control">
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                  <option value="No internet service">No internet service</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="inputZip" class="form-label">techsupport:</label>
+                <select name="techsupport" id="techsupport" class="form-control">
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="inputZip" class="form-label">Contract:</label>
+                <select name="contract" id="contract" class="form-control">
+                  <option value="Two year">Two year</option>
+                  <option value="One year">One year</option>
+                  <option value="Month-to-month">Month-to-month</option>
+                </select>
+              </div>
+              <div>
+                <label for="inputZip" class="form-label">monthlycharges:</label>
+                <input type="number" step="any" value="0" min="0" class="form-control" name="monthlycharges" id="monthlycharges"/>
+              </div>
+              <div>
+                <label for="inputZip" class="form-label">totalcharges:</label>
+                <input type="number" step="any" value="0" min="0" class="form-control" name="totalcharges" id="totalcharges"/>
+              </div>
+              <div>
+                <button type="submit" class="btn btn-primary">Predict</button>
+              </div>
+            </form>
+          </div>
+          <div id="Predict_from_CSVExcel">
+            <form class="row g-3" action="" method="post" enctype="multipart/form-data">
+              <div id="field_inside">
+                <input type="file" class="form-control"  name="file_csv" id="file_csv" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" style="display: none"/>
+                <label for="file_csv" id="upload-button">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="17" viewBox="0 0 20 17">
+                    <path d="M10 0l-5.2 4.9h3.3v5.1h3.8v-5.1h3.3l-5.2-4.9zm9.3 11.5l-3.2-2.1h-2l3.4 2.6h-3.5c-.1 0-.2.1-.2.1l-.8 2.3h-6l-.8-2.2c-.1-.1-.1-.2-.2-.2h-3.6l3.4-2.6h-2l-3.2 2.1c-.4.3-.7 1-.6 1.5l.6 3.1c.1.5.7.9 1.2.9h16.3c.6 0 1.1-.4 1.3-.9l.6-3.1c.1-.5-.2-1.2-.7-1.5z"/>
+                  </svg>
+                  <span>Choose File</span>
+                </label>
+                <div id="custom-msg">No file chosen, yet.</div>
+              </div>
+              <div>
+                <button type="submit" class="btn btn-primary">Predict</button>
+              </div>
+            </form>
+            <div class="operation-table">
+              <div class="filter">
+                <div class="filter-Churn btn-filter red">Churn</div>
+                <div class="filter-Not-Churn btn-filter green">Not Churn</div>
+              </div>
+              <div class="dropdown">
+                  <button class="btn-download">Download</button>
+                  <div class="dropdown-content">
+                      <button class="btn-download" onclick="downloadCSV()">Download as CSV</button>
+                      <button class="btn-download" onclick="downloadExcel()">Download as Excel</button>
+                  </div>
+              </div>
+            </div>
+            <div class="container-table" id="container-table">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- <footer><p>Designed by Mohamed Maiski</p></footer> -->
+<script src="../static/xlsx.full.min.js"></script>
+    <script src="../static/index.js"></script>
+  </body>
+</html>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+      document.querySelector('.filter').addEventListener("click", function (event) {
+          const filter_with = event.target.innerHTML;
+          fetch(`/filter?filter_with=${filter_with}`, {
+              method: "GET"
+          }).then((response) => response.json())
+            .then((data) => {
+                if (data.mode === "table") {
+                    document.getElementById("container-table").innerHTML = data.prediction;
+                    document.querySelector(".dropdown").style.display = "inline-block";
+                    styleTableRows();
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+      });
+  });
+  </script>
+  <script>
+  
+    // Handle file upload button
+  const fileBtn = document.getElementById("file_csv");
+  const customBtn = document.getElementById("upload-button");
+  const customTxt = document.getElementById("custom-msg");
+  
+  fileBtn.addEventListener("click", function () {
+    alert("Upload");
+    fileBtn.click();
+  });
+  
+  customBtn.addEventListener("change", function () {
+    if (fileBtn.value) {
+      customTxt.innerHTML = fileBtn.value.match(/[\/\\]([\w\d\s\.\~\(\)]+)$/)[1];
+    } else {
+      customTxt.innerHTML = "No file chosen";
+    }
+  });
+  </script>
+  
+  
