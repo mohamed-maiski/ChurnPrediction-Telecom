@@ -1,88 +1,188 @@
-import pandas as pd
-from flask import Flask, render_template, request, jsonify
+import csv
+import io
 import pickle
-import webbrowser
+from pathlib import Path
+from zipfile import BadZipFile, ZipFile
+
+import numpy as np
+import pandas as pd
+from flask import Flask, jsonify, render_template, request, send_file
+from werkzeug.exceptions import RequestEntityTooLarge
+
+ROOT = Path(__file__).resolve().parent
+FEATURES = [
+    'SeniorCitizen', 'Dependents', 'tenure', 'OnlineSecurity', 'OnlineBackup',
+    'DeviceProtection', 'TechSupport', 'Contract', 'MonthlyCharges', 'TotalCharges',
+]
+NUMERIC = ['tenure', 'MonthlyCharges', 'TotalCharges']
+CATEGORIES = {
+    'SeniorCitizen': ['No', 'Yes'],
+    'Dependents': ['No', 'Yes'],
+    'OnlineSecurity': ['No', 'No internet service', 'Yes'],
+    'OnlineBackup': ['No', 'No internet service', 'Yes'],
+    'DeviceProtection': ['No', 'No internet service', 'Yes'],
+    'TechSupport': ['No', 'No internet service', 'Yes'],
+    'Contract': ['Month-to-month', 'One year', 'Two year'],
+}
+FORM_FIELDS = [
+    'SeniorCitizen', 'Dependents', 'tenure', 'onlinesecurity', 'onlinebackup',
+    'DeviceProtection', 'techsupport', 'contract', 'monthlycharges', 'totalcharges',
+]
+MAX_ROWS = 10000
+MAX_UPLOAD_BYTES = 5 * 1024 * 1024
+
+
+def preprocess_new_data(frame, encoders, fitted_scaler):
+    transformed = frame.copy()
+    for column, encoder in encoders.items():
+        transformed[column] = encoder.transform(transformed[column])
+    transformed[NUMERIC] = fitted_scaler.transform(transformed[NUMERIC])
+    return transformed.loc[:, FEATURES]
+
+
+
+def validate_data(frame, max_rows=MAX_ROWS):
+    if frame.columns.duplicated().any():
+        raise ValueError('Duplicate column names are not supported.')
+    missing = [column for column in FEATURES if column not in frame.columns]
+    if missing:
+        raise ValueError('Missing columns: ' + ', '.join(missing))
+    if frame.empty:
+        raise ValueError('The file does not contain any customers.')
+    if max_rows is not None and len(frame) > max_rows:
+        raise ValueError(f'Please limit each import to {max_rows:,} customers.')
+    frame = frame.loc[:, FEATURES].copy()
+    senior = frame['SeniorCitizen'].astype('string').str.strip()
+    frame['SeniorCitizen'] = senior.replace({'0': 'No', '1': 'Yes', '0.0': 'No', '1.0': 'Yes'})
+    for column, categories in CATEGORIES.items():
+        frame[column] = frame[column].astype('string').str.strip()
+        if not frame[column].isin(categories).all():
+            raise ValueError(f'{column}: accepted values are ' + ', '.join(categories) + '.')
+    for column in NUMERIC:
+        frame[column] = pd.to_numeric(frame[column], errors='coerce')
+        if not np.isfinite(frame[column]).all() or (frame[column] < 0).any():
+            raise ValueError(f'{column}: enter non-negative numbers, without missing values.')
+    if (frame['tenure'] % 1 != 0).any():
+        raise ValueError('tenure: enter a whole number of months.')
+    return frame
+
+
+def read_upload(upload):
+    suffix = Path(upload.filename or '').suffix.lower()
+    if suffix == '.csv':
+        try:
+            text = upload.read().decode('utf-8-sig')
+        except UnicodeDecodeError as error:
+            raise ValueError('Save the CSV file with UTF-8 encoding, then try again.') from error
+        if not text.strip():
+            raise ValueError('The file is empty.')
+        first_line = next(line for line in text.splitlines() if line.strip())
+        delimiter = ';' if first_line.count(';') > first_line.count(',') else ','
+        headers = [name.strip() for name in next(csv.reader([first_line], delimiter=delimiter))]
+        if len(headers) != len(set(headers)):
+            raise ValueError('Duplicate column names are not supported.')
+        frame = pd.read_csv(io.StringIO(text), sep=delimiter, nrows=MAX_ROWS + 1)
+    elif suffix == '.xlsx':
+        try:
+            content = upload.read()
+            with ZipFile(io.BytesIO(content)) as workbook:
+                if sum(item.file_size for item in workbook.infolist()) > 50 * 1024 * 1024:
+                    raise ValueError('This workbook is too large after decompression.')
+            frame = pd.read_excel(io.BytesIO(content), engine='openpyxl', nrows=MAX_ROWS + 1)
+        except (BadZipFile, KeyError) as error:
+            raise ValueError('The Excel file is invalid or damaged.') from error
+    else:
+        raise ValueError('Choose a CSV or Excel (.xlsx) file.')
+    frame.columns = frame.columns.astype(str).str.strip()
+    return frame
+
+
+with (ROOT / 'models/label_encoders_and_scaler.pkl').open('rb') as file:
+    label_encoders, scaler = pickle.load(file)
+with (ROOT / 'models/random_forest_model.pkl').open('rb') as file:
+    model = pickle.load(file)
+
+
+def predict_customers(frame):
+    return model.predict(preprocess_new_data(frame, label_encoders, scaler))
+
 
 app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = MAX_UPLOAD_BYTES
 
-def preprocess_new_data(df, label_encoders, scaler):
-    for col, le in label_encoders.items():
-        df[col] = le.transform(df[col])
-    numeric_cols = df.select_dtypes(include=['int64', 'float64']).columns 
-    df[numeric_cols] = scaler.transform(df[numeric_cols])
-    return df
 
-with open('models/label_encoders_and_scaler.pkl', 'rb') as f:
-    label_encoders, scaler = pickle.load(f)
-model = pickle.load(open('models/random_forest_model.pkl', 'rb'))
-
-@app.route('/')
+@app.get('/')
 def home():
-    return render_template('index.html')
+    return render_template('index.html', categories=CATEGORIES)
 
-@app.route('/test')
-def test():
-    return render_template('test-projet-table.html')
 
-@app.route('/predict', methods=['POST'])
+@app.post('/predict')
 def predict():
-    global model, mode ,df
+    batch = 'file_csv' in request.files
+    try:
+        if batch:
+            frame = read_upload(request.files['file_csv'])
+        else:
+            if any(field not in request.form for field in FORM_FIELDS):
+                raise ValueError('Please complete all fields in the form.')
+            frame = pd.DataFrame([{
+                column: request.form[field]
+                for column, field in zip(FEATURES, FORM_FIELDS)
+            }])
+        frame = validate_data(frame)
+        predictions = predict_customers(frame)
+        if batch:
+            frame['Churn Prediction'] = ['Churn' if value == 1 else 'Not Churn' for value in predictions]
+            return jsonify(mode='table', rows=frame.to_dict(orient='records'), columns=frame.columns.tolist())
+        return jsonify(mode='Customer', churn=bool(predictions[0] == 1))
+    except (ValueError, pd.errors.ParserError, EOFError) as error:
+        return jsonify(error=str(error)), 400
+    except Exception:
+        app.logger.exception('Prediction failed')
+        return jsonify(error='Prediction could not be completed. Please try again.'), 500
 
-    if 'file_csv' in request.files:
-        try:
-            file_csv = pd.read_csv(request.files['file_csv'])
-            colonnes_a_garder = ['SeniorCitizen', 'Dependents', 'tenure', 'OnlineSecurity', 'OnlineBackup', 'DeviceProtection', 'TechSupport', 'Contract', 'MonthlyCharges', 'TotalCharges']
-            file_csv = file_csv[colonnes_a_garder]
-            df = file_csv.copy()
-            cust_transformed = preprocess_new_data(file_csv, label_encoders, scaler)
-            predictions = model.predict(cust_transformed)
-            mode = 'table'
-            df['Churn Prediction'] = ['Not Churn' if pred == 0 else 'Churn' for pred in predictions]
-            df.to_csv('predicted_data.csv', index=False)
-            table_html = df.to_html(classes='table table-bordered table-hover display', index=False)
-        except Exception as e:
-            table_html = f"<h1><em style='color:red'>Error:</em> {str(e)}</h1>"
-        return jsonify({'prediction': table_html, 'mode': mode})
-    else:
-        try:
-            contract = request.form['contract']
-            onlinesecurity = request.form['onlinesecurity']
-            techsupport = request.form['techsupport']
-            onlinebackup = request.form['onlinebackup']
-            tenure = float(request.form['tenure'])
-            monthlycharges = float(request.form['monthlycharges'])
-            totalcharges = float(request.form['totalcharges'])
-            seniorcitizen = request.form['SeniorCitizen']
-            dependents = request.form['Dependents']
-            deviceprotection = request.form['DeviceProtection']
-            cust = {
-                'SeniorCitizen': [seniorcitizen],
-                'Dependents': [dependents],
-                'tenure': [tenure],
-                'OnlineSecurity': [onlinesecurity],
-                'OnlineBackup': [onlinebackup],
-                'DeviceProtection': [deviceprotection],
-                'TechSupport': [techsupport],
-                'Contract': [contract],
-                'MonthlyCharges': [monthlycharges],
-                'TotalCharges': [totalcharges]
-            }
-            input_data = pd.DataFrame(cust)
-            cust_transformed = preprocess_new_data(input_data, label_encoders, scaler)
-            prediction = model.predict(cust_transformed)
-            mode = 'Customer'
-            prediction_text = '<span class="result-prediction green">Le client est susceptible de continuer !!</span>' if prediction[0] == 0 else '<span class="result-prediction red">Ce client est susceptible de se désabonner !!</span>'
-        except Exception as e:
-            prediction_text = f"<h1><em style='color:red'>Error:</em> {str(e)}</h1>"
-        return jsonify({'prediction': prediction_text, 'mode': mode})
-@app.route('/filter', methods=['GET'])
-def filter():
-    filter_with = request.args.get('filter_with')  # Get filter value from query parameter
-    filtered_df = df[df['Churn Prediction'] == filter_with]  # Filter DataFrame based on 'Churn Prediction' column
-    mode = 'table'
-    table_html = filtered_df.to_html(classes='table table-bordered table-hover', index=False)  # Convert filtered DataFrame to HTML table
-    return jsonify({'prediction': table_html, 'mode': mode})  # Return HTML table and mode as JSON response
+
+@app.post('/export/xlsx')
+def export_excel():
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict) or not isinstance(data.get('rows'), list):
+        return jsonify(error='Provide a list of prediction rows.'), 400
+    rows = data['rows']
+    if not rows or not all(isinstance(row, dict) for row in rows):
+        return jsonify(error='There are no valid prediction rows to export.'), 400
+    try:
+        frame = pd.DataFrame(rows)
+        validated = validate_data(frame)
+        if 'Churn Prediction' not in frame or not frame['Churn Prediction'].isin(['Churn', 'Not Churn']).all():
+            raise ValueError('Each row must include a valid Churn Prediction.')
+        validated['Churn Prediction'] = frame['Churn Prediction']
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            validated.to_excel(writer, sheet_name='Predictions', index=False)
+            worksheet = writer.sheets['Predictions']
+            worksheet.freeze_panes = 'A2'
+            worksheet.auto_filter.ref = worksheet.dimensions
+            for cells in worksheet.columns:
+                worksheet.column_dimensions[cells[0].column_letter].width = 22
+        output.seek(0)
+        return send_file(output, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                         as_attachment=True, download_name='telecom_predictions.xlsx')
+    except ValueError as error:
+        return jsonify(error=str(error)), 400
+
+
+@app.after_request
+def response_headers(response):
+    if request.path == '/predict' or request.path.startswith('/export/'):
+        response.headers['Cache-Control'] = 'no-store'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    return response
+
+
+@app.errorhandler(RequestEntityTooLarge)
+def file_too_large(error):
+    return jsonify(error='The file exceeds the 5 MB limit.'), 413
+
 
 if __name__ == '__main__':
-    webbrowser.open('http://127.0.0.1:5000')
     app.run(host='127.0.0.1', port=5000, debug=False)
