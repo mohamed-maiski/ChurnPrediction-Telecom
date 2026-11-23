@@ -116,6 +116,12 @@ def home():
     return render_template('index.html', categories=CATEGORIES)
 
 
+@app.get('/example.csv')
+def example_csv():
+    return send_file(ROOT / 'data/example_customers.csv', mimetype='text/csv',
+                     as_attachment=True, download_name='example_customers.csv')
+
+
 @app.post('/predict')
 def predict():
     batch = 'file_csv' in request.files

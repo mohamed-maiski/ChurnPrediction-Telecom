@@ -10,7 +10,7 @@ from app import app, FEATURES, FORM_FIELDS, NUMERIC, ROOT, label_encoders, scale
 class PredictionTests(unittest.TestCase):
     def setUp(self):
         self.client = app.test_client()
-        self.frame = pd.read_csv(ROOT / 'static/examples/customers.csv')
+        self.frame = pd.read_csv(ROOT / 'data/example_customers.csv')
 
     def upload(self, content, filename):
         response = self.client.post('/predict', data={'file_csv': (io.BytesIO(content), filename)}, buffered=True)
@@ -127,6 +127,15 @@ class PredictionTests(unittest.TestCase):
         response = self.upload(b'', 'empty.csv')
         self.assertEqual(response.status_code, 400)
         self.assertIn('empty', response.json['error'])
+
+
+    def test_example_download(self):
+        with self.client.get('/example.csv') as response:
+            self.assertEqual(response.status_code, 200)
+            self.assertIn('example_customers.csv', response.headers['Content-Disposition'])
+            downloaded = pd.read_csv(io.BytesIO(response.data))
+            self.assertEqual(list(downloaded.columns), FEATURES)
+            self.assertEqual(len(downloaded), len(self.frame))
 
 
 if __name__ == '__main__':
